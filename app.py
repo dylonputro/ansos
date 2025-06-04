@@ -310,9 +310,7 @@ if uploaded_file is not None:
             if filter_isolated:
                 isolated_nodes = list(nx.isolates(G))
                 G.remove_nodes_from(isolated_nodes)
-            if min_edges > 1:
-                low_degree_nodes = [node for node, degree in dict(G.degree()).items() if degree < min_edges]
-                G.remove_nodes_from(low_degree_nodes)
+            
             # Basic network statistics
             st.markdown("---")
             st.subheader("🔍 Network Overview")
