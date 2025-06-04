@@ -80,34 +80,28 @@ def clean_data(df):
     
     return df, original_size, cleaned_size
 
-
 def calculate_advanced_metrics(G):
-    """Menghitung metrik jaringan tingkat lanjut dari graf G"""
+    """Calculate comprehensive network metrics"""
     metrics = {}
     
-    # Metrik dasar
+    # Basic metrics
     metrics['degree'] = nx.degree_centrality(G)
     metrics['closeness'] = nx.closeness_centrality(G)
     metrics['betweenness'] = nx.betweenness_centrality(G)
+    
+    # Advanced metrics
     metrics['pagerank'] = nx.pagerank(G)
+    metrics['eigenvector'] = nx.eigenvector_centrality(G, max_iter=1000)
     
-    # Eigenvector centrality bisa gagal konvergen
-    try:
-        metrics['eigenvector'] = nx.eigenvector_centrality(G, max_iter=1000)
-    except nx.NetworkXException:
-        metrics['eigenvector'] = {node: 0 for node in G.nodes}
-    
-    # In-degree dan Out-degree untuk graf terarah
+    # In-degree and out-degree for directed graphs
     if G.is_directed():
-        N = len(G.nodes) - 1 if len(G.nodes) > 1 else 1
-        metrics['in_degree'] = {node: deg / N for node, deg in G.in_degree()}
-        metrics['out_degree'] = {node: deg / N for node, deg in G.out_degree()}
+        metrics['in_degree'] = dict(G.in_degree())
+        metrics['out_degree'] = dict(G.out_degree())
     
     return metrics
 
-
 def create_centrality_dataframe(metrics, G):
-    """Membuat DataFrame dari berbagai metrik sentralitas"""
+    """Create comprehensive centrality DataFrame"""
     nodes = list(G.nodes())
     
     df_data = {
@@ -125,11 +119,12 @@ def create_centrality_dataframe(metrics, G):
     
     df = pd.DataFrame(df_data)
     
-    # Skor gabungan tanpa eigenvector
+    # Calculate composite score
     centrality_cols = ['Degree_Centrality', 'Closeness_Centrality', 'Betweenness_Centrality', 'PageRank']
     df['Composite_Score'] = df[centrality_cols].mean(axis=1)
+    df = df.sort_values('Composite_Score', ascending=False)
     
-    return df.sort_values(by='Composite_Score', ascending=False)
+    return df
 
 def create_interactive_network_plotly(G, partition, centrality_df):
     """Create interactive network visualization using Plotly"""
@@ -215,6 +210,7 @@ def create_interactive_network_plotly(G, partition, centrality_df):
                            x=0.5,
                            font=dict(size=20)
                        ),
+                       titlefont_size=16,
                        showlegend=False,
                        hovermode='closest',
                        margin=dict(b=20,l=5,r=5,t=40),
