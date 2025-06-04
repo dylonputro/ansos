@@ -210,7 +210,6 @@ def create_interactive_network_plotly(G, partition, centrality_df):
                            x=0.5,
                            font=dict(size=20)
                        ),
-                       titlefont_size=16,
                        showlegend=False,
                        hovermode='closest',
                        margin=dict(b=20,l=5,r=5,t=40),
